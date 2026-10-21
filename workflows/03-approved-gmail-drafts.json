@@ -1,0 +1,512 @@
+{
+  "name": "Create Approved Gmail Drafts",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1088,
+        128
+      ],
+      "id": "3e8e85cc-daa4-5cba-9d80-4f2eef3a99e6",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "outreach_drafts",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -880,
+        128
+      ],
+      "id": "9ac246bd-5ac3-5128-8cdd-9dc63fcef162",
+      "name": "Read Approved Outreach Drafts"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body }}",
+        "options": {
+          "sendTo": "={{ $json.recipient_email }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        272
+      ],
+      "id": "88aee1a7-fada-59da-8ebc-2dca1138c809",
+      "name": "Create Gmail Draft"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const originalDraft =\n  $('Gmail Draft — Five').item.json;\n\nconst gmailResult = $json;\n\nconst existingNotes =\n  String(originalDraft.notes || '').trim();\n\nconst messageId =\n  gmailResult.message?.id || '';\n\nconst threadId =\n  gmailResult.message?.threadId ||\n  gmailResult.threadId || '';\n\nconst notes = [\n  existingNotes,\n  messageId\n    ? `Gmail message ID: ${messageId}`\n    : '',\n  threadId\n    ? `Gmail thread ID: ${threadId}`\n    : '',\n]\n  .filter(Boolean)\n  .join(' | ');\n\nreturn {\n  json: {\n    ...originalDraft,\n\n    draft_status:\n      'Gmail draft created',\n\n    gmail_draft_id:\n      gmailResult.id || '',\n\n    notes,\n  },\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        128
+      ],
+      "id": "3c67df03-5547-5653-aa84-3ebc1e2987e5",
+      "name": "Prepare Gmail Draft Update"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "outreach_drafts",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "draft_id": "={{ $json.draft_id }}",
+            "draft_status": "={{ $json.draft_status }}",
+            "gmail_draft_id": "={{ $json.gmail_draft_id }}",
+            "approved_at": "={{ $json.approved_at }}",
+            "notes": "={{ $json.notes }}"
+          },
+          "matchingColumns": [
+            "draft_id"
+          ],
+          "schema": [
+            {
+              "id": "draft_id",
+              "displayName": "draft_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recipient_email",
+              "displayName": "recipient_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact_name",
+              "displayName": "contact_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recommended_service",
+              "displayName": "recommended_service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "body",
+              "displayName": "body",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "personalization_evidence",
+              "displayName": "personalization_evidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "draft_status",
+              "displayName": "draft_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approved_at",
+              "displayName": "approved_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent_at",
+              "displayName": "sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gmail_draft_id",
+              "displayName": "gmail_draft_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1040,
+        352
+      ],
+      "id": "84006aba-d021-5f44-96e3-2cb99d6be29c",
+      "name": "Update Outreach Draft Status"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all();\n\nreturn rows.filter(item => {\n  const row = item.json;\n\n  const approved =\n    String(row.draft_status || '').trim() ===\n    'Approved to draft';\n\n  const hasRecipient =\n    String(row.recipient_email || '').trim() !== '';\n\n  const hasSubject =\n    String(row.subject || '').trim() !== '';\n\n  const hasBody =\n    String(row.body || '').trim() !== '';\n\n  const notCreatedYet =\n    String(row.gmail_draft_id || '').trim() === '';\n\n  return (\n    approved &&\n    hasRecipient &&\n    hasSubject &&\n    hasBody &&\n    notCreatedYet\n  );\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        128
+      ],
+      "id": "7540e3f5-d261-55f2-b984-ee5ce99ee65f",
+      "name": "Filter Drafts Approved for Gmail"
+    },
+    {
+      "parameters": {
+        "maxItems": 5
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        128
+      ],
+      "id": "1bbbebcc-7aa6-578b-8137-8de36eff809f",
+      "name": "Gmail Draft — Five"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b628976c-dad9-45b8-b8c4-45eeeec04e52",
+              "leftValue": "={{ String($json.campaign_id || '').toLowerCase() }}",
+              "rightValue": "example_outreach_followup",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "48db0f46-221e-50c1-ae31-4528456ab208",
+      "name": "Is Follow-up Draft",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -240,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 1,
+        "filters": {
+          "q": "={{ (() => { const email = String($json.recipient_email || '').trim(); const subject = String($json.subject || '').replace(/^(\\s*re:\\s*)+/i, '').replace(/\\\"/g, ''); return `in:sent to:${email} subject:\"${subject}\"`; })() }}"
+        }
+      },
+      "id": "08f5323f-d6a8-54eb-8c2b-85db65720d3b",
+      "name": "Find Original Sent Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const followUp = $('Gmail Draft — Five').item.json;\nconst message = $json;\n\nconst threadId = String(message.threadId || '').trim();\nconst messageId = String(message.id || '').trim();\n\nif (!threadId) {\n  throw new Error(\n    'The original Gmail thread was not found for ' +\n    String(followUp.recipient_email || '') +\n    '. A standalone draft was not created.'\n  );\n}\n\nreturn {\n  json: {\n    ...followUp,\n    original_gmail_message_id: messageId,\n    original_gmail_thread_id: threadId,\n  },\n};"
+      },
+      "id": "854d768a-b5a2-55a0-aaf9-96ef6e8f7041",
+      "name": "Validate Follow-up Thread",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body }}",
+        "options": {
+          "threadId": "={{ $json.original_gmail_thread_id }}",
+          "sendTo": "={{ $json.recipient_email }}"
+        }
+      },
+      "id": "e7e6c29c-6161-5e55-ba93-8846fc66de52",
+      "name": "Create Threaded Follow-up Draft",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read Approved Outreach Drafts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Approved Outreach Drafts": {
+      "main": [
+        [
+          {
+            "node": "Filter Drafts Approved for Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Gmail Draft": {
+      "main": [
+        [
+          {
+            "node": "Prepare Gmail Draft Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Gmail Draft Update": {
+      "main": [
+        [
+          {
+            "node": "Update Outreach Draft Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Drafts Approved for Gmail": {
+      "main": [
+        [
+          {
+            "node": "Gmail Draft — Five",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Draft — Five": {
+      "main": [
+        [
+          {
+            "node": "Is Follow-up Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Follow-up Draft": {
+      "main": [
+        [
+          {
+            "node": "Find Original Sent Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Gmail Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Original Sent Email": {
+      "main": [
+        [
+          {
+            "node": "Validate Follow-up Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Follow-up Thread": {
+      "main": [
+        [
+          {
+            "node": "Create Threaded Follow-up Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Threaded Follow-up Draft": {
+      "main": [
+        [
+          {
+            "node": "Prepare Gmail Draft Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "pinData": {}
+}
