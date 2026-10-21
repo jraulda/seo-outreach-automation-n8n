@@ -1,0 +1,12 @@
+{
+  "lead_id": "LEAD-001",
+  "company": "Northstar Workshop",
+  "contact_name": "Taylor Lee",
+  "primary_email": "taylor@example.org",
+  "website": "https://example.org",
+  "source_segment": "Fictional demo",
+  "campaign_eligibility": "Eligible",
+  "lead_status": "Approved for outreach",
+  "recommended_service": "SEO",
+  "qualification_reason": "Example only: verify a specific observation before outreach"
+}
