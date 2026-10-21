@@ -1,0 +1,9 @@
+*.zip
+.env
+.env.*
+!.env.example
+*.sqlite
+*.db
+*.log
+node_modules/
+.DS_Store
