@@ -11,6 +11,12 @@ Six example workflows covering lead qualification, human-reviewed outreach draft
 | 5 | Sync Sent Outreach to CRM | Sync sent status recorded in the outreach sheet to CRM. |
 | 6 | Gmail Reply Classifier | Classify matched replies, update CRM, and optionally send an **internal** alert. |
 
+## Reliability and reproducible checks
+
+The follow-up monitor rejects stale next-action dates and waits for sent follow-ups to reach CRM. The CRM synchronizer records each applied draft ID with its count update, allowing a sequential retry after a partial failure without counting that draft twice. Existing human notes are preserved.
+
+Run `node tests/commercial-v2-regressions.cjs` and `node tests/commercial-sync-replay.cjs` with Node.js. These offline tests use fictional records and execute the exported Code-node logic. See [validation and release checklist](docs/validation.md) for coverage, integration steps, and limits around concurrent runs, historical records, and ordered writes. Live integration remains unverified for this public configuration.
+
 ## Setup
 
 1. Import each JSON file into n8n. The six exports are separate workflows; no cross-workflow IDs are required.
@@ -24,3 +30,4 @@ Six example workflows covering lead qualification, human-reviewed outreach draft
 Qualification is advisory and does not authorize outreach. Workflow 2 filters for approved leads and saves text as `Pending review`. Workflow 3 filters for `Approved to draft` and creates Gmail drafts; sending remains a separate human action. Workflow 4 saves follow-ups as `Draft ready for review`; a reviewer must approve them before workflow 3 can create Gmail drafts. Workflow 6 contains an internal alert sender and should be configured before activation. No workflow automatically sends mail to leads.
 
 These are sanitized reference exports, not a connected demo environment. Live behavior depends on your own sheet layout, credentials, Gmail permissions, and n8n version. Existing model selections are retained from the exports and should be reviewed against the provider's current support policy before activation.
+
